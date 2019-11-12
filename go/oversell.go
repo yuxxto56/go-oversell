@@ -75,7 +75,7 @@ func (r *Redis) SetNx(key string,value interface{}) int{
 	return 0
 }
 
-//redis SetNx 实现分布式锁
+//redis Incr 实现递增
 func (r *Redis) Incr(key string) int{
 	n,err := redis.Int(r.redisConn.Do("INCR", key))
 	if err != nil{
