@@ -26,7 +26,7 @@ func HanderOverSell(w http.ResponseWriter, r *http.Request){
 	defer red.Close()
 	//设置初始库存
 	storeNum := 95
-	//目前总库存存
+	//设置总库存
 	limitStoreNum := 100
 	//设置key
 	redisKey := "huawei_p30_num_100"
