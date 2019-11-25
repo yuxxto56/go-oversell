@@ -10,6 +10,7 @@ type Redis struct {
 	Port string
 	Protocol string
 	redisConn redis.Conn
+	Exp uint64
 }
 
 //连接redis
@@ -63,23 +64,58 @@ func (r *Redis) Get(key string) string{
 }
 
 //redis SetNx 实现分布式锁
-func (r *Redis) SetNx(key string,value interface{}) int{
+func (r *Redis) SetNx(key string,value interface{}) bool{
 	n,err := r.redisConn.Do("SETNX", key, value)
 	if err != nil{
-		fmt.Println("redis.SET error,err is ",err.Error())
-		return 0
+		fmt.Println("redis.SETNX error,err is ",err.Error())
+		return false
 	}
-	if n == int(1){
-		return 1
+	if n == int64(1){
+		return true
 	}
-	return 0
+	return false
 }
 
+//redis设置key的过期时间
+func (r *Redis) Expire(key string,second uint64) bool{
+	 n,err := r.redisConn.Do("EXPIRE",key,second)
+	 if err != nil{
+		fmt.Println("redis.EXPIRE error,err is ",err.Error())
+		return false
+	 }
+	 if n == int64(1){
+	 	return true
+	 }
+	 return false
+}
+
+
+//redis获取key的过期时间
+func (r *Redis) Ttl(key string) interface{}{
+	n,err := r.redisConn.Do("TTL",key)
+	if err != nil {
+		fmt.Println("redis.EXPIRE error,err is ", err.Error())
+		return 0
+	}
+	return n
+}
+
+
 //redis Incr 实现递增
-func (r *Redis) Incr(key string) int{
-	n,err := redis.Int(r.redisConn.Do("INCR", key))
+func (r *Redis) IncrBy(key string,value interface{}) int{
+	n,err := redis.Int(r.redisConn.Do("INCRBY", key,value))
 	if err != nil{
-		fmt.Println("redis.INCR error,err is ",err.Error())
+		fmt.Println("redis.INCRBY error,err is ",err.Error())
+		return 0
+	}
+	return n;
+}
+
+//redis decr 实现递增
+func (r *Redis) DecrBy(key string,value interface{}) int{
+	n,err := redis.Int(r.redisConn.Do("DECRBY", key,value))
+	if err != nil{
+		fmt.Println("redis.INCRBY error,err is ",err.Error())
 		return 0
 	}
 	return n;
