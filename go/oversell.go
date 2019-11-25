@@ -13,6 +13,10 @@ type Redis struct {
 	Exp uint64
 }
 
+
+
+
+
 //连接redis
 func (r *Redis) GetConn() (error){
 	conn,err := redis.Dial(r.Protocol,r.Host+":"+string(r.Port))
